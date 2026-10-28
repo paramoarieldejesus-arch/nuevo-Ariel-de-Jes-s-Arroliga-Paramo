@@ -1,0 +1,53 @@
+#encontrar el camino de menor latencia.
+import heapq
+
+def dijkstra(grafo, inicio, destino):
+    distancias = {inicio: 0}
+    anteriores = {}
+    cola = [(0, inicio)]
+
+    while cola:
+        distancia, nodo = heapq.heappop(cola)
+
+        if nodo == destino:
+            break
+
+        if distancia > distancias[nodo]:
+            continue
+
+        for vecino, latencia in grafo[nodo]:
+            nueva_distancia = distancia + latencia
+
+            if nueva_distancia < distancias.get(vecino, float('inf')):
+                distancias[vecino] = nueva_distancia
+                anteriores[vecino] = nodo
+                heapq.heappush(cola, (nueva_distancia, vecino))
+
+    if destino not in distancias:
+        return [], float('inf')
+
+    ruta = []
+    actual = destino
+
+    while actual != inicio:
+        ruta.append(actual)
+        actual = anteriores[actual]
+
+    ruta.append(inicio)
+    ruta.reverse()
+
+    return ruta, distancias[destino]
+
+
+# Grafo ponderado: conexiones y latencias en milisegundos
+grafo = {
+    'A': [('B', 10), ('C', 4)],
+    'B': [('D', 5)],
+    'C': [('B', 2), ('D', 12)],
+    'D': []
+}
+
+ruta, latencia = dijkstra(grafo, 'A', 'D')
+
+print("Camino de menor latencia:", " -> ".join(ruta))
+print("Latencia total:", latencia, "ms")
